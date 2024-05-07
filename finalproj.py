@@ -1,7 +1,6 @@
 #Sarah Ornerr
 import requests
 
-
 class HangmanGame:
     def __init__(self):
         self.word = self.get_random_word()
