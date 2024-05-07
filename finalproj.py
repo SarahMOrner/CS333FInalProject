@@ -1,4 +1,4 @@
-#Sarah Ornerrrr
+#Sarah Orner
 import requests
 
 class HangmanGame:
