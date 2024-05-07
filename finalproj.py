@@ -1,5 +1,6 @@
-#Sarah Orner
+#Sarah Ornerr
 import requests
+
 
 class HangmanGame:
     def __init__(self):
@@ -120,5 +121,5 @@ class HangmanDisplay:
 
 if __name__ == '__main__':
     game = HangmanGame()
-    if game.word:  # Start the game only if a word was successfully fetched
+    if game.word:
         game.play()
