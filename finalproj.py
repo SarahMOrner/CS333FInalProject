@@ -1,47 +1,123 @@
 import requests
 
-def get_random_word():
-    url = "https://random-word-api.herokuapp.com/word?number=1"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.json()[0]
-    except requests.RequestException:
-        return None
+class HangmanGame:
+    def __init__(self):
+        self.word = self.get_random_word()
+        if self.word is None:
+            print("Failed to get a word from the API, please check your connection.")
+            return
+        self.guesses = set()
+        self.attempts = 7
+        self.display = HangmanDisplay()
 
-def display_word(word, guesses):
-    return ''.join([char if char in guesses else '_' for char in word])
+    def get_random_word(self):
+        url = "https://random-word-api.herokuapp.com/word?number=1"
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            return response.json()[0]
+        except requests.RequestException:
+            return None
 
-def game_loop():
-    word = get_random_word()
-    if word is None:
-        print("Failed to get a word from the API, please check your connection.")
-        return
+    def display_word(self):
+        return ''.join([char if char in self.guesses else '_' for char in self.word])
 
-    guesses = set()
-    attempts = 7
-
-    while attempts > 0:
-        print(display_word(word, guesses))
+    def make_guess(self):
         guess = input('Guess a letter: ').lower()
-
-        if guess in guesses:
+        if guess in self.guesses:
             print("You already guessed that letter.")
-            continue
+            return
+        self.guesses.add(guess)
+        if guess not in self.word:
+            self.attempts -= 1
+            print("Wrong guess. Attempts remaining:", self.attempts)
+        self.display.display(self.attempts)
 
-        guesses.add(guess)
+    def is_word_guessed(self):
+        return all(char in self.guesses for char in self.word)
 
-        if guess in word:
-            print("Good guess!")
+    def play(self):
+        while self.attempts > 0:
+            print(self.display_word())
+            self.make_guess()
+            if self.is_word_guessed():
+                print("Congratulations! You guessed the word:", self.word)
+                break
         else:
-            attempts -= 1
-            print("Wrong guess. Attempts remaining:", attempts)
+            print("Out of attempts! The word was:", self.word)
 
-        if all(char in guesses for char in word):
-            print("Congratulations! You guessed the word:", word)
-            break
-    else:
-        print("Out of attempts! The word was:", word)
+class HangmanDisplay:
+    def __init__(self):
+        self.stages = [
+            """
+               ------
+               |    |
+               |
+               |
+               |
+               |
+            --------
+            """,
+            """
+               ------
+               |    |
+               |    O
+               |
+               |
+               |
+            --------
+            """,
+            """
+               ------
+               |    |
+               |    O
+               |    |
+               |
+               |
+            --------
+            """,
+            """
+               ------
+               |    |
+               |    O
+               |   /|
+               |
+               |
+            --------
+            """,
+            """
+               ------
+               |    |
+               |    O
+               |   /|\\
+               |
+               |
+            --------
+            """,
+            """
+               ------
+               |    |
+               |    O
+               |   /|\\
+               |   /
+               |
+            --------
+            """,
+            """
+               ------
+               |    |
+               |    O
+               |   /|\\
+               |   / \\
+               |
+            --------
+            """
+        ]
+
+    def display(self, attempts_left):
+        print(self.stages[len(self.stages) - attempts_left - 1])
 
 if __name__ == '__main__':
-    game_loop()
+    game = HangmanGame()
+    if game.word:  # Start the game only if a word was successfully fetched
+        game.play()
