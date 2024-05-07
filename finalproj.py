@@ -1,4 +1,5 @@
-import requests
+#Sarah Orner
+mport requests
 
 class HangmanGame:
     def __init__(self):
